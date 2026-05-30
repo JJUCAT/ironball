@@ -1,4 +1,28 @@
 dependencies:
+  espressif/console_cmd_wifi:
+    component_hash: 1d9f355552d97f40f3d88f86fda516295c676397308bf00a225f4c298027941a
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=5.0'
+    - name: espressif/console_simple_init
+      registry_url: https://components.espressif.com
+      require: public
+      version: '>=1.1.0'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 1.1.0
+  espressif/console_simple_init:
+    component_hash: b488b12318f3cb6e0b55b034bd12956926d45f0e1396442e820f8ece4776c306
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=5.0'
+    source:
+      registry_url: https://components.espressif.com
+      type: service
+    version: 1.1.0
   espressif/esp32-camera:
     component_hash: 2b75f6f0c987fb0e3687ccbd464cd00c163ea8cb05d2470cfb05adf6535bc488
     dependencies:
@@ -28,7 +52,8 @@ dependencies:
       type: idf
     version: 6.0.1
 direct_dependencies:
+- espressif/console_cmd_wifi
 - espressif/esp32-camera
-manifest_hash: e44a5d3c93e8a60adf3b3198218fb7eaa619a70684c49ae8b623c1c37567ba8b
+manifest_hash: 0d6f2e41189c6bacacb3bad45626ccd71c91ea60e28b899d49aff8b90e19e7ad
 target: esp32s3
 version: 3.0.0

@@ -987,6 +987,17 @@ CONFIG_PARTITION_TABLE_MD5=y
 # end of Partition Table
 
 #
+# Wifi command Configuration
+#
+# default:
+CONFIG_WIFI_CMD_AUTO_REGISTRATION=y
+# default:
+CONFIG_WIFI_CMD_NETWORK_SSID="myssid"
+# default:
+CONFIG_WIFI_CMD_NETWORK_PASSWORD="mypassword"
+# end of Wifi command Configuration
+
+#
 # Compiler options
 #
 # default:
