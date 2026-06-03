@@ -1,3 +1,4 @@
 software/ironball/.devcontainer/
 software/ironball/.vscode/
 software/ironball/build/
+freecad/fcstd/*.FCBak
