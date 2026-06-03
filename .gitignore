@@ -2,3 +2,6 @@ software/ironball/.devcontainer/
 software/ironball/.vscode/
 software/ironball/build/
 freecad/fcstd/*.FCBak
+kicad/magnet_detect/magnet_detect-backups
+kicad/magnet_detect/fp-info-cache
+kicad/magnet_detect/magnet_detect.kicad_prl
