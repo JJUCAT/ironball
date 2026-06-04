@@ -1012,7 +1012,7 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "power:+5V"
+		(symbol "power:+3.3V"
 			(power)
 			(pin_numbers
 				(hide yes)
@@ -1033,7 +1033,7 @@
 					(hide yes)
 				)
 			)
-			(property "Value" "+5V"
+			(property "Value" "+3.3V"
 				(at 0 3.556 0)
 				(effects
 					(font
@@ -1059,7 +1059,7 @@
 					(hide yes)
 				)
 			)
-			(property "Description" "Power symbol creates a global label with name \"+5V\""
+			(property "Description" "Power symbol creates a global label with name \"+3.3V\""
 				(at 0 0 0)
 				(effects
 					(font
@@ -1077,7 +1077,7 @@
 					(hide yes)
 				)
 			)
-			(symbol "+5V_0_1"
+			(symbol "+3.3V_0_1"
 				(polyline
 					(pts
 						(xy -0.762 1.27) (xy 0 2.54)
@@ -1115,7 +1115,7 @@
 					)
 				)
 			)
-			(symbol "+5V_1_1"
+			(symbol "+3.3V_1_1"
 				(pin power_in line
 					(at 0 0 90)
 					(length 0)
@@ -1257,6 +1257,12 @@
 		(uuid "1bf09781-28cb-4ded-bdc1-462e98447800")
 	)
 	(junction
+		(at 74.93 76.2)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "48d27e8e-777d-4c2d-a62f-747631a304d5")
+	)
+	(junction
 		(at 81.28 120.65)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -1275,16 +1281,10 @@
 		(uuid "983df473-b73c-4506-aa11-8722a8b66680")
 	)
 	(junction
-		(at 92.71 120.65)
+		(at 81.28 100.33)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "ca3e5a10-fd0a-41e6-a4de-aae98496a13d")
-	)
-	(junction
-		(at 74.93 76.2)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "fffb2484-f754-40f0-b88e-ab0ef6c180e4")
+		(uuid "9dc215ae-08fa-489d-bff9-0c688483f183")
 	)
 	(no_connect
 		(at 125.73 90.17)
@@ -1406,6 +1406,16 @@
 	)
 	(wire
 		(pts
+			(xy 81.28 100.33) (xy 100.33 100.33)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "76012700-f64a-4306-8515-dfb821a8873e")
+	)
+	(wire
+		(pts
 			(xy 81.28 115.57) (xy 81.28 120.65)
 		)
 		(stroke
@@ -1413,6 +1423,16 @@
 			(type default)
 		)
 		(uuid "7d2bb834-f86c-47cd-a8fd-b0d633301457")
+	)
+	(wire
+		(pts
+			(xy 81.28 100.33) (xy 81.28 107.95)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7d3ff265-9891-4d93-b20b-a36403189dd8")
 	)
 	(wire
 		(pts
@@ -1456,7 +1476,7 @@
 	)
 	(wire
 		(pts
-			(xy 81.28 76.2) (xy 81.28 107.95)
+			(xy 81.28 76.2) (xy 81.28 100.33)
 		)
 		(stroke
 			(width 0)
@@ -1473,16 +1493,6 @@
 			(type default)
 		)
 		(uuid "b33753c0-af33-4606-990b-c6fc52ef9e5d")
-	)
-	(wire
-		(pts
-			(xy 92.71 115.57) (xy 92.71 120.65)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ba1d202b-4285-44dc-831c-1d2a6b0d8489")
 	)
 	(wire
 		(pts
@@ -1506,33 +1516,13 @@
 	)
 	(wire
 		(pts
-			(xy 81.28 120.65) (xy 92.71 120.65)
+			(xy 81.28 120.65) (xy 100.33 120.65)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "ced4dbf8-84d9-4806-a721-9f20d051c103")
-	)
-	(wire
-		(pts
-			(xy 92.71 120.65) (xy 100.33 120.65)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d5e068f4-3bc1-48e4-aed0-adad2a27846d")
-	)
-	(wire
-		(pts
-			(xy 92.71 107.95) (xy 92.71 100.33)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d7b80c10-85f8-4df2-91de-3612f6b9fd0f")
 	)
 	(wire
 		(pts
@@ -1553,16 +1543,6 @@
 			(type default)
 		)
 		(uuid "e2adc0db-3b09-41e6-b1f6-cd1dba546739")
-	)
-	(wire
-		(pts
-			(xy 92.71 100.33) (xy 100.33 100.33)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "fb6ab60f-3094-4bae-8222-74a47e417c95")
 	)
 	(symbol
 		(lib_id "Connector:TestPoint")
@@ -1641,7 +1621,7 @@
 		(dnp no)
 		(uuid "1d91d8c0-b0bd-42a1-961e-be8671f2ce2a")
 		(property "Reference" "J1"
-			(at 53.848 89.154 0)
+			(at 58.42 89.916 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1649,7 +1629,7 @@
 			)
 		)
 		(property "Value" "Conn_01x06_Socket"
-			(at 53.848 91.694 0)
+			(at 58.42 92.456 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1705,72 +1685,6 @@
 			(project ""
 				(path "/c3e2cd2e-47db-48d7-8ae5-f0c1ce0b1bef"
 					(reference "J1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+5V")
-		(at 74.93 76.2 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "269895ec-0405-4bb9-9e53-20838d039692")
-		(property "Reference" "#PWR02"
-			(at 74.93 80.01 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "+5V"
-			(at 74.93 71.12 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 74.93 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 74.93 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"+5V\""
-			(at 74.93 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "dbc38a22-a50f-4852-8117-26129d5b26b5")
-		)
-		(instances
-			(project ""
-				(path "/c3e2cd2e-47db-48d7-8ae5-f0c1ce0b1bef"
-					(reference "#PWR02")
 					(unit 1)
 				)
 			)
@@ -2020,76 +1934,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:C")
-		(at 92.71 111.76 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "d6c48710-ed6a-48e6-bf5e-98404bfcf449")
-		(property "Reference" "C2"
-			(at 96.52 110.4899 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "1uF"
-			(at 96.52 113.0299 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
-			(at 93.6752 115.57 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 92.71 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Unpolarized capacitor"
-			(at 92.71 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "80b8770d-93b4-4544-b02c-89293fcff127")
-		)
-		(pin "1"
-			(uuid "c13bf74d-fc69-4e0c-adeb-49b8d6441b05")
-		)
-		(instances
-			(project "magnet_detect"
-				(path "/c3e2cd2e-47db-48d7-8ae5-f0c1ce0b1bef"
-					(reference "C2")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Connector:TestPoint")
 		(at 134.62 96.52 0)
 		(unit 1)
@@ -2284,6 +2128,72 @@
 			(project "magnet_detect"
 				(path "/c3e2cd2e-47db-48d7-8ae5-f0c1ce0b1bef"
 					(reference "TP3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+3.3V")
+		(at 74.93 76.2 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "f31719cd-fd8a-4140-b6c0-19464b663b20")
+		(property "Reference" "#PWR02"
+			(at 74.93 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3.3V"
+			(at 74.93 71.12 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 74.93 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 74.93 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3.3V\""
+			(at 74.93 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "c26e946e-4872-415b-becd-acdd421649f0")
+		)
+		(instances
+			(project ""
+				(path "/c3e2cd2e-47db-48d7-8ae5-f0c1ce0b1bef"
+					(reference "#PWR02")
 					(unit 1)
 				)
 			)

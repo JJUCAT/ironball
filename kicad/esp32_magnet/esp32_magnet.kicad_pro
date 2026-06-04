@@ -48,44 +48,11 @@
         "silk_text_thickness": 0.1,
         "silk_text_upright": false,
         "zones": {
-          "min_clearance": 0.3
+          "min_clearance": 0.5
         }
       },
       "diff_pair_dimensions": [],
-      "drc_exclusions": [
-        [
-          "lib_footprint_mismatch|128225000|123500000|0a973581-f2bc-4bff-9795-ed77374fdf14|00000000-0000-0000-0000-000000000000",
-          ""
-        ],
-        [
-          "lib_footprint_mismatch|144621762|116373076|cb2b224a-803d-4b33-9c81-2078e4830faa|00000000-0000-0000-0000-000000000000",
-          ""
-        ],
-        [
-          "silk_edge_clearance|142054939|109702844|83813f8e-78bc-4241-b5b3-43b4429da45a|4f1a205c-4494-4cf2-9167-9e670913666f",
-          ""
-        ],
-        [
-          "silk_edge_clearance|143104416|110444956|83813f8e-78bc-4241-b5b3-43b4429da45a|6e568bdb-e1cf-4be3-a7c8-2f232670dd08",
-          ""
-        ],
-        [
-          "silk_edge_clearance|144218099|111409978|83813f8e-78bc-4241-b5b3-43b4429da45a|727a70e3-bbac-4e8e-ae87-928c8e30e846",
-          ""
-        ],
-        [
-          "silk_edge_clearance|148352904|119415052|83813f8e-78bc-4241-b5b3-43b4429da45a|40d2fbd1-c7ef-4225-accb-3453a3790c5d",
-          ""
-        ],
-        [
-          "silk_edge_clearance|148486405|122294008|83813f8e-78bc-4241-b5b3-43b4429da45a|e83003b0-19e7-4d1d-9b49-33f8cfa5f51f",
-          ""
-        ],
-        [
-          "silk_edge_clearance|148508593|121403626|83813f8e-78bc-4241-b5b3-43b4429da45a|16007212-4d8e-4a21-b1c0-8d9422aff699",
-          ""
-        ]
-      ],
+      "drc_exclusions": [],
       "meta": {
         "version": 2
       },
@@ -259,16 +226,7 @@
     "equivalence_files": []
   },
   "erc": {
-    "erc_exclusions": [
-      [
-        "power_pin_not_driven|749300|1206500|4a798f03-4e93-407b-b68c-e76295760240|00000000-0000-0000-0000-000000000000|/c3e2cd2e-47db-48d7-8ae5-f0c1ce0b1bef|/c3e2cd2e-47db-48d7-8ae5-f0c1ce0b1bef|",
-        ""
-      ],
-      [
-        "power_pin_not_driven|749300|762000|dbc38a22-a50f-4852-8117-26129d5b26b5|00000000-0000-0000-0000-000000000000|/c3e2cd2e-47db-48d7-8ae5-f0c1ce0b1bef|/c3e2cd2e-47db-48d7-8ae5-f0c1ce0b1bef|",
-        ""
-      ]
-    ],
+    "erc_exclusions": [],
     "meta": {
       "version": 0
     },
@@ -493,7 +451,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "magnet_detect.kicad_pro",
+    "filename": "esp32_magnet.kicad_pro",
     "version": 3
   },
   "net_settings": {
@@ -528,7 +486,7 @@
     "last_paths": {
       "gencad": "",
       "idf": "",
-      "netlist": "magnet_detect.net",
+      "netlist": "",
       "plot": "",
       "pos_files": "",
       "specctra_dsn": "",
@@ -638,7 +596,7 @@
     "meta": {
       "version": 1
     },
-    "net_format_name": "KiCad",
+    "net_format_name": "",
     "page_layout_descr_file": "",
     "plot_directory": "",
     "space_save_all_events": true,
@@ -653,7 +611,7 @@
   },
   "sheets": [
     [
-      "c3e2cd2e-47db-48d7-8ae5-f0c1ce0b1bef",
+      "ae01d821-3510-405d-85c2-2b531eb565da",
       "Root"
     ]
   ],
