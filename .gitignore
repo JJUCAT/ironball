@@ -1,3 +1,5 @@
+.vscode/
+.claude/
 software/ironball/.devcontainer/
 software/ironball/.vscode/
 software/ironball/build/
