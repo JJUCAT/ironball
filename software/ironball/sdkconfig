@@ -3698,6 +3698,15 @@ CONFIG_CAMERA_JPEG_MODE_FRAME_SIZE_AUTO=y
 # default:
 CONFIG_JD_USE_ROM=y
 # end of JPEG Decoder
+
+#
+# ESP WebSocket client
+#
+# default:
+# CONFIG_ESP_WS_CLIENT_ENABLE_DYNAMIC_BUFFER is not set
+# default:
+# CONFIG_ESP_WS_CLIENT_SEPARATE_TX_LOCK is not set
+# end of ESP WebSocket client
 # end of Component config
 
 # default:
