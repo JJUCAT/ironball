@@ -5,7 +5,7 @@
 #include "console_wifi.h"
 #include "esp_log.h"
 #include "logger.h"
-
+#include "wifi_manager.h"
 
 
 void app_main(void)
@@ -18,13 +18,12 @@ void app_main(void)
     // 所有日志都是 INFO 等级，个别日志 "websocket_client"，"transport_ws"，"trans_tcp" 单独设置日志等级
     esp_log_level_set("*", ESP_LOG_INFO);
 
-    // ESP_ERROR_CHECK 是 ESP 的异常检查，出现异常输出日志并推出程序
-    // 初始化 NVS 存储器，wifi 驱动依赖 NVS 存储
-    ESP_ERROR_CHECK(nvs_flash_init());
-    // 创建网络接口管理器
-    ESP_ERROR_CHECK(esp_netif_init());
     // 创建默认事件循环
     ESP_ERROR_CHECK(esp_event_loop_create_default());
+
+    // wifi 管理器初始化
+    ESP_ERROR_CHECK(wifi_manager_init());
+
     // 终端交互指令
     ESP_ERROR_CHECK(console_cmd_init());
     // 注册 wifi 交互指令

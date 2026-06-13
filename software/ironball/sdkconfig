@@ -3618,6 +3618,32 @@ CONFIG_WL_SECTOR_SIZE=4096
 # end of Wear Levelling
 
 #
+# Jucat WiFi Manager
+#
+# default:
+CONFIG_DEFAULT_WIFI_SSID="Xiaomi_469C"
+# default:
+CONFIG_DEFAULT_WIFI_PASSWORD="st88986320"
+# default:
+CONFIG_WIFI_AP_SSID="IronBall-Config"
+# default:
+CONFIG_WIFI_AP_PASSWORD="12345678"
+# default:
+CONFIG_WIFI_AP_MAX_CONNECT=4
+# default:
+CONFIG_WIFI_AP_DOMAIN="ironball.config"
+# end of Jucat WiFi Manager
+
+#
+# cJSON
+#
+# default:
+CONFIG_CJSON_NESTING_LIMIT=1000
+# default:
+CONFIG_CJSON_CIRCULAR_LIMIT=10000
+# end of cJSON
+
+#
 # Camera configuration
 #
 # default:

@@ -1,4 +1,14 @@
 dependencies:
+  espressif/cjson:
+    component_hash: e788323270d90738662d66fffa910bfe1fba019bba087f01557e70c40485b469
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=5.0'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 1.7.19~2
   espressif/console_cmd_wifi:
     component_hash: 1d9f355552d97f40f3d88f86fda516295c676397308bf00a225f4c298027941a
     dependencies:
@@ -62,9 +72,10 @@ dependencies:
       type: idf
     version: 6.0.1
 direct_dependencies:
+- espressif/cjson
 - espressif/console_cmd_wifi
 - espressif/esp32-camera
 - espressif/esp_websocket_client
-manifest_hash: 93c4cb7221b6a58382a41d48095d932179ad2ed3794f45cdef108d0074838542
+manifest_hash: d2e2f8e1bba348f57e08fef974696dbd339050b196f4f91ecdf04e8fdf97f2f3
 target: esp32s3
 version: 3.0.0

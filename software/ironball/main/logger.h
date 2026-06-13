@@ -6,8 +6,8 @@
  */
 
 
-#ifndef _ESP_WEBSOCKET_CLIENT_H_
-#define _ESP_WEBSOCKET_CLIENT_H_
+#ifndef _IRONBALL_LOGGER_H_
+#define _IRONBALL_LOGGER_H_
 
 
 #ifdef __cplusplus
@@ -23,4 +23,4 @@ static const char *LOGGER_SYS = "sys";
 }
 #endif
 
-#endif
+#endif // _IRONBALL_LOGGER_H_

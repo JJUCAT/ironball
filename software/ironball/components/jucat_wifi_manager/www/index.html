@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<!-- 页面配置 -->
+<head>
+    <!-- 页面元信息，不显示 -->
+    <meta charset="UTF-8">
+    <!-- 页面自适应 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 页面标签名 -->
+    <title>IronBall WiFi 配置</title>
+    <!-- 引用外部样式文件，href 是样式文件路径 -->
+    <link rel="stylesheet" href="/style.css">
+</head>
+<!-- 网页显示的内容 -->
+<body>
+    <!-- div 无语义容器 -->
+    <div class="container">
+        <!-- 页面头部 -->
+        <header>
+            <!-- h1 主标题 -->
+            <h1>IronBall WiFi</h1>
+            <!-- 副标题 -->
+            <p class="subtitle">网络配置</p>
+        </header>
+
+        <!-- WiFi 状态定义 -->
+        <!-- section 语义区块，card 卡片样式， status-section 状态-->
+        <section class="card" id="status-section">
+            <h2>连接状态</h2>
+            <!-- status-grid 网格布局 -->
+            <div class="status-grid">
+                <!-- status-item 单项状态 -->
+                <div class="status-item">
+                    <!-- 状态文本 -->
+                    <span class="label">状态</span>
+                    <span class="value" id="status-text">检查中...</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">SSID</span>
+                    <span class="value" id="status-ssid">--</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">IP 地址</span>
+                    <span class="value" id="status-ip">--</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">信号强度</span>
+                    <span class="value" id="status-rssi">--</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- WiFi 配置定义 -->
+        <!-- section 语义区块，card 卡片样式， config-section 配置-->
+        <section class="card" id="config-section">
+            <h2>配置 WiFi</h2>
+            <div class="form-group">
+                <label for="ssid">选择网络</label>
+                <div class="ssid-row">
+                    <!-- 下拉框 -->
+                    <select id="ssid">
+                        <option value="">-- 请扫描或选择 --</option>
+                    </select>
+                    <!-- 扫描按钮，onclick 触发 JS 函数 scanWifi() -->
+                    <button id="scan-btn" onclick="scanWifi()" class="btn-secondary">
+                        扫描
+                    </button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="password">密码</label>
+                <!-- 密码输入框 -->
+                <input type="password" id="password"
+                       placeholder="输入 WiFi 密码 (8位以上)"
+                       autocomplete="off">
+            </div>
+            <!-- 连接按钮，onclick 触发 JS 函数 submitConfig() -->
+            <button id="connect-btn" onclick="submitConfig()" class="btn-primary">
+                连接
+            </button>
+            <!-- 消息提示框 -->
+            <div id="message" class="hidden"></div>
+        </section>
+
+        <!-- 页脚，页面底部 -->
+        <footer>
+            <p>IronBall v1.0</p>
+        </footer>
+    </div>
+
+    <!-- 引用 JavaScript 文件，src 是脚本文件路径 -->
+    <script src="/app.js"></script>
+</body>
+</html>

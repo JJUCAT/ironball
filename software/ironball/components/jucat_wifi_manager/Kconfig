@@ -1,0 +1,28 @@
+menu "Jucat WiFi Manager"
+
+    config DEFAULT_WIFI_SSID
+        string "default wifi"
+        default "Xiaomi_469C"
+
+    config DEFAULT_WIFI_PASSWORD
+        string "default wifi password"
+        default "st88986320"
+
+    config WIFI_AP_SSID
+        string "AP SSID"
+        default "IronBall-AP"
+
+    config WIFI_AP_PASSWORD
+        string "AP password"
+        default "12345678"
+
+    config WIFI_AP_MAX_CONNECT
+        int "Max STA connections"
+        range 1 4
+        default 4
+
+    config WIFI_AP_DOMAIN
+        string "AP domain name"
+        default "ironball.config"
+
+endmenu
