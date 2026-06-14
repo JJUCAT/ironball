@@ -213,12 +213,12 @@ static void dns_server_stop(void)
 // ====================================================================
 // 嵌入的静态文件（通过 CMake EMBED_FILES 引入）
 // ====================================================================
-extern const uint8_t www_index_html_start[] asm("_binary_index_html_start");
-extern const uint8_t www_index_html_end[]   asm("_binary_index_html_end");
-extern const uint8_t www_style_css_start[]  asm("_binary_style_css_start");
-extern const uint8_t www_style_css_end[]    asm("_binary_style_css_end");
-extern const uint8_t www_app_js_start[]     asm("_binary_app_js_start");
-extern const uint8_t www_app_js_end[]       asm("_binary_app_js_end");
+extern const uint8_t www_wifi_manager_index_html_start[] asm("_binary_wifi_manager_index_html_start");
+extern const uint8_t www_wifi_manager_index_html_end[]   asm("_binary_wifi_manager_index_html_end");
+extern const uint8_t www_wifi_manager_style_css_start[]  asm("_binary_wifi_manager_style_css_start");
+extern const uint8_t www_wifi_manager_style_css_end[]    asm("_binary_wifi_manager_style_css_end");
+extern const uint8_t www_wifi_manager_app_js_start[]     asm("_binary_wifi_manager_app_js_start");
+extern const uint8_t www_wifi_manager_app_js_end[]       asm("_binary_wifi_manager_app_js_end");
 
 // ====================================================================
 // JSON 辅助函数
@@ -262,19 +262,19 @@ static esp_err_t serve_file(httpd_req_t *req,
 static esp_err_t index_get_handler(httpd_req_t *req)
 {
     return serve_file(req, "text/html; charset=utf-8",
-                      www_index_html_start, www_index_html_end);
+                      www_wifi_manager_index_html_start, www_wifi_manager_index_html_end);
 }
 
 static esp_err_t style_get_handler(httpd_req_t *req)
 {
     return serve_file(req, "text/css; charset=utf-8",
-                      www_style_css_start, www_style_css_end);
+                      www_wifi_manager_style_css_start, www_wifi_manager_style_css_end);
 }
 
 static esp_err_t script_get_handler(httpd_req_t *req)
 {
     return serve_file(req, "application/javascript; charset=utf-8",
-                      www_app_js_start, www_app_js_end);
+                      www_wifi_manager_app_js_start, www_wifi_manager_app_js_end);
 }
 
 /** GET /api/wifi-scan — 扫描附近 AP，返回 JSON 列表 */
@@ -467,8 +467,8 @@ static esp_err_t config_post_handler(httpd_req_t *req)
 
 static const httpd_uri_t uris[] = {
     { .uri = "/",              .method = HTTP_GET,  .handler = index_get_handler },
-    { .uri = "/style.css",     .method = HTTP_GET,  .handler = style_get_handler },
-    { .uri = "/app.js",        .method = HTTP_GET,  .handler = script_get_handler },
+    { .uri = "/wifi_manager_style.css",     .method = HTTP_GET,  .handler = style_get_handler },
+    { .uri = "/wifi_manager_app.js.js",        .method = HTTP_GET,  .handler = script_get_handler },
     { .uri = "/api/wifi-scan",   .method = HTTP_GET, .handler = scan_get_handler },
     { .uri = "/api/wifi-status", .method = HTTP_GET, .handler = status_get_handler },
     { .uri = "/api/wifi-config", .method = HTTP_POST, .handler = config_post_handler },
