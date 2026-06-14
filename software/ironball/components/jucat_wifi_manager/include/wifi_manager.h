@@ -16,13 +16,8 @@ extern "C" {
 #endif
 
 
-
-
-
 // 日志标签
 static const char *WIFI_MANAGER_TAG = "jucat_wifi_manager";
-
-
 
 /**
  * @brief 初始化 WiFi 管理器

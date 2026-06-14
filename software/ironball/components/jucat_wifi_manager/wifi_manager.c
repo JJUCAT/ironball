@@ -29,7 +29,7 @@
 static TaskHandle_t s_wifi_monitor_task_handle = NULL;
 
 // 断开重联检查次数
-const int kWifiReconnectMaxChecks = 3;
+const int kWifiReconnectMaxChecks = 10;
 // WiFi 配置网页任务是否正在运行的全局标志
 bool gWifiWebTaskRunning = false; 
 

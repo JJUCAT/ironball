@@ -16,9 +16,8 @@
 #include "lwip/netdb.h"
 #include "cJSON.h"
 
+#include "wifi_manager.h"
 #include "wifi_config_server.h"
-
-static const char *TAG = "wifi_config_server";
 
 /** 新配置已提交标志 */
 static bool s_has_new_config = false;
@@ -118,7 +117,7 @@ static uint16_t dns_make_response(const uint8_t *query, uint16_t qlen,
     }
     *dp = '\0';
 
-    ESP_LOGD(TAG, "DNS 查询: %s", domain);
+    ESP_LOGD(WIFI_MANAGER_TAG, "DNS 查询: %s", domain);
 
     if (strcasecmp(domain, CONFIG_WIFI_AP_DOMAIN) != 0) {
         res_hdr->ancount = htons(0);
@@ -141,11 +140,11 @@ static uint16_t dns_make_response(const uint8_t *query, uint16_t qlen,
 /** DNS 应答器任务 */
 static void dns_server_task(void *pvParameters)
 {
-    ESP_LOGI(TAG, "DNS 服务器已启动 (端口 %d)", DNS_PORT);
+    ESP_LOGI(WIFI_MANAGER_TAG, "DNS 服务器已启动 (端口 %d)", DNS_PORT);
 
     s_dns_sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
     if (s_dns_sock < 0) {
-        ESP_LOGE(TAG, "创建 DNS 套接字失败");
+        ESP_LOGE(WIFI_MANAGER_TAG, "创建 DNS 套接字失败");
         vTaskDelete(NULL);
         return;
     }
@@ -157,7 +156,7 @@ static void dns_server_task(void *pvParameters)
     };
 
     if (bind(s_dns_sock, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-        ESP_LOGE(TAG, "DNS 套接字绑定失败");
+        ESP_LOGE(WIFI_MANAGER_TAG, "DNS 套接字绑定失败");
         close(s_dns_sock);
         s_dns_sock = -1;
         vTaskDelete(NULL);
@@ -197,7 +196,7 @@ static void dns_server_start(void)
         dns_server_task, "wifi_dns", 3072, NULL,
         tskIDLE_PRIORITY + 1, NULL);
     if (ret != pdPASS) {
-        ESP_LOGE(TAG, "创建 DNS 任务失败");
+        ESP_LOGE(WIFI_MANAGER_TAG, "创建 DNS 任务失败");
     }
 }
 
@@ -207,7 +206,7 @@ static void dns_server_stop(void)
     if (s_dns_sock >= 0) {
         close(s_dns_sock);
         s_dns_sock = -1;
-        ESP_LOGI(TAG, "DNS 服务器已停止");
+        ESP_LOGI(WIFI_MANAGER_TAG, "DNS 服务器已停止");
     }
 }
 
@@ -281,7 +280,7 @@ static esp_err_t script_get_handler(httpd_req_t *req)
 /** GET /api/wifi-scan — 扫描附近 AP，返回 JSON 列表 */
 static esp_err_t scan_get_handler(httpd_req_t *req)
 {
-    ESP_LOGI(TAG, "开始 WiFi 扫描...");
+    ESP_LOGI(WIFI_MANAGER_TAG, "开始 WiFi 扫描...");
 
     // 扫描配置：全信道主动扫描
     wifi_scan_config_t scan_cfg = {
@@ -296,7 +295,7 @@ static esp_err_t scan_get_handler(httpd_req_t *req)
 
     esp_err_t ret = esp_wifi_scan_start(&scan_cfg, true);
     if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "WiFi 扫描启动失败: %s", esp_err_to_name(ret));
+        ESP_LOGE(WIFI_MANAGER_TAG, "WiFi 扫描启动失败: %s", esp_err_to_name(ret));
         json_string_response(req, "[]");
         return ESP_OK;
     }
@@ -306,7 +305,7 @@ static esp_err_t scan_get_handler(httpd_req_t *req)
     ESP_ERROR_CHECK(esp_wifi_scan_get_ap_records(&count, records));
     esp_wifi_clear_ap_list();
 
-    ESP_LOGI(TAG, "扫描到 %d 个 AP", count);
+    ESP_LOGI(WIFI_MANAGER_TAG, "扫描到 %d 个 AP", count);
 
     cJSON *root = cJSON_CreateArray();
     if (!root) {
@@ -418,7 +417,7 @@ static esp_err_t config_post_handler(httpd_req_t *req)
     }
     cJSON_Delete(root);
 
-    ESP_LOGI(TAG, "收到新配置: SSID=%s", ssid);
+    ESP_LOGI(WIFI_MANAGER_TAG, "收到新配置: SSID=%s", ssid);
 
     // 保存到 NVS
     wifi_config_t cfg = {
@@ -434,7 +433,7 @@ static esp_err_t config_post_handler(httpd_req_t *req)
 
     esp_err_t ret = esp_wifi_set_config(WIFI_IF_STA, &cfg);
     if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "设置 WiFi 配置失败: %s", esp_err_to_name(ret));
+        ESP_LOGE(WIFI_MANAGER_TAG, "设置 WiFi 配置失败: %s", esp_err_to_name(ret));
         cJSON *err_resp = cJSON_CreateObject();
         if (err_resp) {
             cJSON_AddStringToObject(err_resp, "status", "error");
@@ -452,11 +451,11 @@ static esp_err_t config_post_handler(httpd_req_t *req)
     // 尝试连接
     ret = esp_wifi_connect();
     if (ret != ESP_OK) {
-        ESP_LOGW(TAG, "连接 WiFi 失败: %s", esp_err_to_name(ret));
+        ESP_LOGW(WIFI_MANAGER_TAG, "连接 WiFi 失败: %s", esp_err_to_name(ret));
     }
 
     s_has_new_config = true;
-    ESP_LOGI(TAG, "WiFi 配置已保存，SSID=%s", ssid);
+    ESP_LOGI(WIFI_MANAGER_TAG, "WiFi 配置已保存，SSID=%s", ssid);
 
     return json_string_response(req,
         "{\"status\":\"ok\",\"message\":\"配置已保存\"}");
@@ -489,21 +488,21 @@ esp_err_t wifi_config_server_start(httpd_handle_t *handle)
 
     esp_err_t ret = httpd_start(handle, &config);
     if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "启动 HTTP 服务器失败: %s", esp_err_to_name(ret));
+        ESP_LOGE(WIFI_MANAGER_TAG, "启动 HTTP 服务器失败: %s", esp_err_to_name(ret));
         return ret;
     }
 
     for (int i = 0; i < uri_count; i++) {
         ret = httpd_register_uri_handler(*handle, &uris[i]);
         if (ret != ESP_OK) {
-            ESP_LOGE(TAG, "注册 URI %s 失败: %s",
+            ESP_LOGE(WIFI_MANAGER_TAG, "注册 URI %s 失败: %s",
                      uris[i].uri, esp_err_to_name(ret));
             httpd_stop(*handle);
             return ret;
         }
     }
 
-    ESP_LOGI(TAG, "WiFi 配置服务器已启动 (http://%s / http://%s)",
+    ESP_LOGI(WIFI_MANAGER_TAG, "WiFi 配置服务器已启动 (http://%s / http://%s)",
              AP_GATEWAY_IP, CONFIG_WIFI_AP_DOMAIN);
     dns_server_start();
     return ESP_OK;
@@ -514,7 +513,7 @@ esp_err_t wifi_config_server_stop(httpd_handle_t handle)
     dns_server_stop();
     if (handle) {
         httpd_stop(handle);
-        ESP_LOGI(TAG, "WiFi 配置服务器已停止");
+        ESP_LOGI(WIFI_MANAGER_TAG, "WiFi 配置服务器已停止");
     }
     return ESP_OK;
 }
