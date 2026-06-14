@@ -1,0 +1,53 @@
+依赖：
+esp_http_server 创建服务器 ironball_server
+cJSON 编辑解析 json 数据
+
+
+文件结构：
+ironball_server_task.c 
+  负责创建 ironball_server 服务器任务
+
+----------
+ironball_server.c
+  负责创建服务器
+
+----------
+monitor.c
+  服务器业务视频监控
+  // 前端 api 接口
+  // 开启 websocket
+  static esp_err_t start_websocket_handler(httpd_req_t *req)
+  // 通过 websocket 上报图像
+  static esp_err_t get_frame_handler(httpd_req_t *req)
+
+----------
+reminder.c
+  服务器业务事件管理
+  // 前端 api 接口
+  // 获取所有事件，加日志，暂时无实际控制逻辑
+  static esp_err_t get_reminder_list_handler(httpd_req_t *req)
+  // 添加事件，加日志，暂时无实际控制逻辑
+  static esp_err_t add_handler(httpd_req_t *req)
+  // 删除事件，加日志，暂时无实际控制逻辑
+  static esp_err_t delete_handler(httpd_req_t *req)
+
+----------
+remote_control.c
+  服务器业务遥控相机
+  // 前端 api 接口
+  // 相机左转，加日志，暂时无实际控制逻辑
+  static esp_err_t left_turn_handler(httpd_req_t *req)
+  // 相机右转，加日志，暂时无实际控制逻辑
+  static esp_err_t right_turn_handler(httpd_req_t *req)
+
+----------
+app.js
+  服务器前端业务
+
+----------
+index.html
+  服务器前端布局
+
+----------
+style.css
+  服务器前端样式
