@@ -1,7 +1,8 @@
 /**
- * @brief WiFi 配置 HTTP 服务器 — 服务端实现
- *
- * JSON 序列化/反序列化依赖 cJSON（managed component espressif/cjson）。
+ * @copyright Copyright (c) {2022} LMR
+ * @author LMR (lmr2887@163.com)
+ * @date 2026-06-15
+ * @brief WiFi 配置 HTTP 服务端
  */
 
 #include <string.h>
@@ -20,7 +21,7 @@
 #include "wifi_config_server.h"
 
 /** 新配置已提交标志 */
-static bool s_has_new_config = false;
+static bool g_has_new_config = false;
 
 /** 最大扫描 AP 数量 */
 #define SCAN_AP_MAX 20
@@ -36,6 +37,8 @@ static bool s_has_new_config = false;
 // ====================================================================
 
 /** DNS 报文头部 */
+// DNS 客户端和 DNS 服务器之间交换的标准网络数据包格式（请求 + 响应）
+// __attribute__((packed)) 禁止结构体对齐，紧凑排列
 typedef struct __attribute__((packed)) {
     uint16_t id;
     uint16_t flags;
@@ -47,16 +50,16 @@ typedef struct __attribute__((packed)) {
 
 /** DNS 应答中的资源记录 */
 typedef struct __attribute__((packed)) {
-    uint16_t name;      // 0xc00c = 指针指向问题域
+    uint16_t name;
     uint16_t type;
     uint16_t dclass;
     uint32_t ttl;
     uint16_t rdlength;
-    uint32_t rdata;     // A 记录 IPv4
+    uint32_t rdata;
 } dns_answer_t;
 
 /** DNS 套接字句柄 */
-static int s_dns_sock = -1;
+static int g_dns_sock = -1;
 
 /** 将点分十进制 IP 字符串转为 uint32（网络字节序） */
 static uint32_t ip_to_u32(const char *ip_str)
@@ -142,8 +145,8 @@ static void dns_server_task(void *pvParameters)
 {
     ESP_LOGI(WIFI_MANAGER_TAG, "DNS 服务器已启动 (端口 %d)", DNS_PORT);
 
-    s_dns_sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
-    if (s_dns_sock < 0) {
+    g_dns_sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
+    if (g_dns_sock < 0) {
         ESP_LOGE(WIFI_MANAGER_TAG, "创建 DNS 套接字失败");
         vTaskDelete(NULL);
         return;
@@ -155,10 +158,10 @@ static void dns_server_task(void *pvParameters)
         .sin_addr   = { .s_addr = htonl(INADDR_ANY) },
     };
 
-    if (bind(s_dns_sock, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+    if (bind(g_dns_sock, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
         ESP_LOGE(WIFI_MANAGER_TAG, "DNS 套接字绑定失败");
-        close(s_dns_sock);
-        s_dns_sock = -1;
+        close(g_dns_sock);
+        g_dns_sock = -1;
         vTaskDelete(NULL);
         return;
     }
@@ -168,10 +171,10 @@ static void dns_server_task(void *pvParameters)
     socklen_t from_len = sizeof(from);
 
     while (1) {
-        int ret = recvfrom(s_dns_sock, query, sizeof(query), 0,
+        int ret = recvfrom(g_dns_sock, query, sizeof(query), 0,
                            (struct sockaddr *)&from, &from_len);
         if (ret < 0) {
-            if (s_dns_sock < 0) break; // 被关闭
+            if (g_dns_sock < 0) break; // 被关闭
             continue;
         }
 
@@ -182,7 +185,7 @@ static void dns_server_task(void *pvParameters)
         uint16_t rlen = dns_make_response(query, ret, response, sizeof(response));
         if (rlen == 0) continue;
 
-        sendto(s_dns_sock, response, rlen, 0,
+        sendto(g_dns_sock, response, rlen, 0,
                (struct sockaddr *)&from, from_len);
     }
 
@@ -203,9 +206,9 @@ static void dns_server_start(void)
 /** 停止 DNS 应答器 */
 static void dns_server_stop(void)
 {
-    if (s_dns_sock >= 0) {
-        close(s_dns_sock);
-        s_dns_sock = -1;
+    if (g_dns_sock >= 0) {
+        close(g_dns_sock);
+        g_dns_sock = -1;
         ESP_LOGI(WIFI_MANAGER_TAG, "DNS 服务器已停止");
     }
 }
@@ -454,7 +457,7 @@ static esp_err_t config_post_handler(httpd_req_t *req)
         ESP_LOGW(WIFI_MANAGER_TAG, "连接 WiFi 失败: %s", esp_err_to_name(ret));
     }
 
-    s_has_new_config = true;
+    g_has_new_config = true;
     ESP_LOGI(WIFI_MANAGER_TAG, "WiFi 配置已保存，SSID=%s", ssid);
 
     return json_string_response(req,
@@ -520,7 +523,7 @@ esp_err_t wifi_config_server_stop(httpd_handle_t handle)
 
 bool wifi_config_has_new_config(void)
 {
-    bool ret = s_has_new_config;
-    s_has_new_config = false;  // 一次性读取
+    bool ret = g_has_new_config;
+    g_has_new_config = false;  // 一次性读取
     return ret;
 }

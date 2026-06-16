@@ -33,9 +33,9 @@ const char WIFI_MANAGER_TAG[] = "jucat_wifi_manager";
 static TaskHandle_t s_wifi_monitor_task_handle = NULL;
 
 // 断开重联检查次数
-static const int kWifiReconnectMaxChecks = 10;
+static const int k_wifi_reconnect_max_checks = 10;
 // WiFi 配置网页任务是否正在运行的全局标志
-static bool gWifiWebTaskRunning = false; 
+static bool g_wifi_web_task_running = false; 
 
 // WiFi 配置网页任务栈大小
 #define WIFI_WEB_TASK_STACK_SIZE 6144
@@ -125,7 +125,7 @@ void wifi_monitor_task(void *pvParameters)
             ESP_LOGD(WIFI_MANAGER_TAG, "WiFi connected, rssi=%d", ap_info.rssi);
         } else if (status == ESP_ERR_WIFI_NOT_CONNECT) {
             // wifi 配置期间不进行重连检查，等待用户配置完成后自动连接
-            if (gWifiWebTaskRunning) {
+            if (g_wifi_web_task_running) {
                 ESP_LOGW(WIFI_MANAGER_TAG, "wifi_web_task running, waiting user configuration...");
                 last_reconnect_check = 0;
                 continue;
@@ -133,7 +133,7 @@ void wifi_monitor_task(void *pvParameters)
 
             ESP_LOGW(WIFI_MANAGER_TAG, "WiFi disconnected, waiting for next check");
             last_reconnect_check++;
-            if (last_reconnect_check >= kWifiReconnectMaxChecks) {
+            if (last_reconnect_check >= k_wifi_reconnect_max_checks) {
                 ESP_LOGW(WIFI_MANAGER_TAG, "try reconnect WiFi...");
 
                 // 检查是否配置过 wifi
@@ -148,7 +148,7 @@ void wifi_monitor_task(void *pvParameters)
                 // 未配置过 wifi，需要开启网页端配置
                 else {
                     ESP_LOGW(WIFI_MANAGER_TAG, "has no connected WiFi, launch wifi config server");
-                    gWifiWebTaskRunning = true;
+                    g_wifi_web_task_running = true;
 
                     // 创建 WiFi 配置网页任务
                     BaseType_t ret = xTaskCreate(
@@ -161,7 +161,7 @@ void wifi_monitor_task(void *pvParameters)
                     );
                     if (ret != pdPASS) {
                         ESP_LOGE(WIFI_MANAGER_TAG, "create wifi_web_task FAILED");
-                        gWifiWebTaskRunning = false;
+                        g_wifi_web_task_running = false;
                     } else {
                         // 等待配置任务完成（配置任务内部会自行退出）
                         ESP_LOGI(WIFI_MANAGER_TAG, "create wifi_web_task SUCCESS");
@@ -224,7 +224,7 @@ void wifi_web_task(void *pvParameters)
         ESP_LOGE(WIFI_MANAGER_TAG, "launch wifi config server FAILED");
         esp_wifi_stop();
         esp_netif_destroy(ap_netif);
-        gWifiWebTaskRunning = false;
+        g_wifi_web_task_running = false;
         vTaskDelete(NULL);
         return;
     }
@@ -250,6 +250,6 @@ void wifi_web_task(void *pvParameters)
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
 
     ESP_LOGI(WIFI_MANAGER_TAG, "WiFi web config task ended");
-    gWifiWebTaskRunning = false;
+    g_wifi_web_task_running = false;
     vTaskDelete(NULL);
 }
