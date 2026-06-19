@@ -13,8 +13,4 @@ menu "Jucat WiFi Manager"
         range 1 4
         default 4
 
-    config WIFI_AP_DOMAIN
-        string "AP domain name"
-        default "ironball.config"
-
 endmenu

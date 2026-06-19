@@ -128,7 +128,9 @@ void wifi_monitor_task(void *pvParameters)
             if (g_wifi_web_task_running) {
                 ESP_LOGW(WIFI_MANAGER_TAG, "wifi_web_task running, waiting user configuration...");
                 last_reconnect_check = 0;
-            } else {
+            }
+
+            if (!g_wifi_web_task_running) {
                 ESP_LOGW(WIFI_MANAGER_TAG, "WiFi disconnected, waiting for next check");
                 last_reconnect_check++;
                 if (last_reconnect_check >= k_wifi_reconnect_max_checks) {
