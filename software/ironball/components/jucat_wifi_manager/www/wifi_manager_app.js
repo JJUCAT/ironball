@@ -131,5 +131,5 @@ document.addEventListener('DOMContentLoaded', function () {
     scanWifi();
 
     // Auto-refresh status every 5s
-    setInterval(loadStatus, 5000);
+    setInterval(loadStatus, 1000);
 });

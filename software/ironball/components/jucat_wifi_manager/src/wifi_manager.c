@@ -128,46 +128,45 @@ void wifi_monitor_task(void *pvParameters)
             if (g_wifi_web_task_running) {
                 ESP_LOGW(WIFI_MANAGER_TAG, "wifi_web_task running, waiting user configuration...");
                 last_reconnect_check = 0;
-                continue;
-            }
+            } else {
+                ESP_LOGW(WIFI_MANAGER_TAG, "WiFi disconnected, waiting for next check");
+                last_reconnect_check++;
+                if (last_reconnect_check >= k_wifi_reconnect_max_checks) {
+                    ESP_LOGW(WIFI_MANAGER_TAG, "try reconnect WiFi...");
 
-            ESP_LOGW(WIFI_MANAGER_TAG, "WiFi disconnected, waiting for next check");
-            last_reconnect_check++;
-            if (last_reconnect_check >= k_wifi_reconnect_max_checks) {
-                ESP_LOGW(WIFI_MANAGER_TAG, "try reconnect WiFi...");
-
-                // 检查是否配置过 wifi
-                wifi_config_t cfg = {0};
-                // 获取在 STA 模式下的 wifi 配置
-                esp_err_t err = esp_wifi_get_config(WIFI_IF_STA, &cfg);
-                if (err == ESP_OK && strlen((char*)cfg.sta.ssid) > 0) {
-                    ESP_LOGI(WIFI_MANAGER_TAG, "connected WiFi: %s", cfg.sta.ssid);
-                    esp_wifi_set_config(WIFI_IF_STA, &cfg);
-                    esp_wifi_connect();
-                }
-                // 未配置过 wifi，需要开启网页端配置
-                else {
-                    ESP_LOGW(WIFI_MANAGER_TAG, "has no connected WiFi, launch wifi config server");
-                    g_wifi_web_task_running = true;
-
-                    // 创建 WiFi 配置网页任务
-                    BaseType_t ret = xTaskCreate(
-                        wifi_web_task, // 任务函数
-                        "wifi_web_config", // 任务名称
-                        WIFI_WEB_TASK_STACK_SIZE, // 栈深度
-                        NULL, // 任务参数
-                        WIFI_WEB_TASK_PRIORITY, // 优先级
-                        NULL // 不需要保存句柄
-                    );
-                    if (ret != pdPASS) {
-                        ESP_LOGE(WIFI_MANAGER_TAG, "create wifi_web_task FAILED");
-                        g_wifi_web_task_running = false;
-                    } else {
-                        // 等待配置任务完成（配置任务内部会自行退出）
-                        ESP_LOGI(WIFI_MANAGER_TAG, "create wifi_web_task SUCCESS");
+                    // 检查是否配置过 wifi
+                    wifi_config_t cfg = {0};
+                    // 获取在 STA 模式下的 wifi 配置
+                    esp_err_t err = esp_wifi_get_config(WIFI_IF_STA, &cfg);
+                    if (err == ESP_OK && strlen((char*)cfg.sta.ssid) > 0) {
+                        ESP_LOGI(WIFI_MANAGER_TAG, "connected WiFi: %s", cfg.sta.ssid);
+                        esp_wifi_set_config(WIFI_IF_STA, &cfg);
+                        esp_wifi_connect();
                     }
+                    // 未配置过 wifi，需要开启网页端配置
+                    else {
+                        ESP_LOGW(WIFI_MANAGER_TAG, "has no connected WiFi, launch wifi config server");
+                        g_wifi_web_task_running = true;
+
+                        // 创建 WiFi 配置网页任务
+                        BaseType_t ret = xTaskCreate(
+                            wifi_web_task, // 任务函数
+                            "wifi_web_config", // 任务名称
+                            WIFI_WEB_TASK_STACK_SIZE, // 栈深度
+                            NULL, // 任务参数
+                            WIFI_WEB_TASK_PRIORITY, // 优先级
+                            NULL // 不需要保存句柄
+                        );
+                        if (ret != pdPASS) {
+                            ESP_LOGE(WIFI_MANAGER_TAG, "create wifi_web_task FAILED");
+                            g_wifi_web_task_running = false;
+                        } else {
+                            // 等待配置任务完成（配置任务内部会自行退出）
+                            ESP_LOGI(WIFI_MANAGER_TAG, "create wifi_web_task SUCCESS");
+                        }
+                    }
+                    last_reconnect_check = 0;
                 }
-                last_reconnect_check = 0;
             }
         } else {
             ESP_LOGD(WIFI_MANAGER_TAG, "WiFi unknown status (ret=%d)", status);
@@ -232,11 +231,23 @@ void wifi_web_task(void *pvParameters)
     // 7. 等待用户完成配置
     ESP_LOGI(WIFI_MANAGER_TAG, "waiting for user to configure WiFi...");
 
+    int timeout_counter = 0;
+    int timeout = 5; // 等待 5 秒后退出配置任务
     while (1) {
         if (wifi_config_has_new_config()) {
             ESP_LOGI(WIFI_MANAGER_TAG, "user configured new WiFi, exiting server...");
-            break;
+            timeout_counter = timeout;
         }
+
+        if (timeout_counter > 0) {
+            ESP_LOGI(WIFI_MANAGER_TAG, "waiting %d seconds before exiting...", timeout_counter);
+            timeout_counter--;
+            if (timeout_counter <= 0) {
+                ESP_LOGI(WIFI_MANAGER_TAG, "exiting server...");
+                break;
+            }
+        }
+
         vTaskDelay(pdMS_TO_TICKS(WIFI_WEB_TASK_INTERVAL_MS));
     }
 

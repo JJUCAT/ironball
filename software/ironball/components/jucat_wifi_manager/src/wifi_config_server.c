@@ -140,26 +140,32 @@ static uint16_t dns_make_response(const uint8_t *query, uint16_t qlen,
     return sizeof(dns_header_t) + qname_len + 4 + sizeof(dns_answer_t);
 }
 
-/** DNS 应答器任务 */
+/**
+ * DNS 服务器任务：监听 DNS 查询并应答 AP 网关 IP
+ */
 static void dns_server_task(void *pvParameters)
 {
-    ESP_LOGI(WIFI_MANAGER_TAG, "DNS 服务器已启动 (端口 %d)", DNS_PORT);
+    ESP_LOGI(WIFI_MANAGER_TAG, "DNS server task start (port: %d)", DNS_PORT);
 
+    // 创建 socket,ipv4 地址协议，SOCK_DGRAM 是 UDP 协议
     g_dns_sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
     if (g_dns_sock < 0) {
-        ESP_LOGE(WIFI_MANAGER_TAG, "创建 DNS 套接字失败");
+        ESP_LOGE(WIFI_MANAGER_TAG, "create DNS socket FAILED");
         vTaskDelete(NULL);
         return;
     }
 
+    // ip + 端口
     struct sockaddr_in addr = {
-        .sin_family = AF_INET,
-        .sin_port   = htons(DNS_PORT),
-        .sin_addr   = { .s_addr = htonl(INADDR_ANY) },
+        .sin_family = AF_INET, // ipv4
+        .sin_port   = htons(DNS_PORT), // DNS 端口
+        .sin_addr   = { .s_addr = htonl(INADDR_ANY) }, // ip 地址 0.0.0.0，表示本机任意 ip 地址
     };
 
+    // g_dns_sock 绑定本机任意 ip 地址下的 DNS 端口
+    // 不管设备的 ip 怎么变化，端口 DNS_PORT 都能收到 DNS 查询
     if (bind(g_dns_sock, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-        ESP_LOGE(WIFI_MANAGER_TAG, "DNS 套接字绑定失败");
+        ESP_LOGE(WIFI_MANAGER_TAG, "DNS bind socket FAILED");
         close(g_dns_sock);
         g_dns_sock = -1;
         vTaskDelete(NULL);
@@ -171,6 +177,7 @@ static void dns_server_task(void *pvParameters)
     socklen_t from_len = sizeof(from);
 
     while (1) {
+        // socket 接收 DNS 查询，from 端口地址
         int ret = recvfrom(g_dns_sock, query, sizeof(query), 0,
                            (struct sockaddr *)&from, &from_len);
         if (ret < 0) {
@@ -182,6 +189,7 @@ static void dns_server_task(void *pvParameters)
         if (ret < (int)sizeof(dns_header_t) + 5) continue;
 
         uint8_t response[sizeof(dns_header_t) + 512];
+        // 响应请求
         uint16_t rlen = dns_make_response(query, ret, response, sizeof(response));
         if (rlen == 0) continue;
 
@@ -199,7 +207,7 @@ static void dns_server_start(void)
         dns_server_task, "wifi_dns", 3072, NULL,
         tskIDLE_PRIORITY + 1, NULL);
     if (ret != pdPASS) {
-        ESP_LOGE(WIFI_MANAGER_TAG, "创建 DNS 任务失败");
+        ESP_LOGE(WIFI_MANAGER_TAG, "create DNS task FAILED");
     }
 }
 
@@ -209,13 +217,15 @@ static void dns_server_stop(void)
     if (g_dns_sock >= 0) {
         close(g_dns_sock);
         g_dns_sock = -1;
-        ESP_LOGI(WIFI_MANAGER_TAG, "DNS 服务器已停止");
+        ESP_LOGI(WIFI_MANAGER_TAG, "DNS server stopped");
     }
 }
 
 // ====================================================================
 // 嵌入的静态文件（通过 CMake EMBED_FILES 引入）
 // ====================================================================
+// asm 告诉编译器，前面的变量对应的连接器名是 asm() 括号内的名字
+// 这里的 www_wifi_manager_index_html_start 变量不需要定义，由 CMakelist.txt 中 EMBED_FILES 将文件二进制化生成
 extern const uint8_t www_wifi_manager_index_html_start[] asm("_binary_wifi_manager_index_html_start");
 extern const uint8_t www_wifi_manager_index_html_end[]   asm("_binary_wifi_manager_index_html_end");
 extern const uint8_t www_wifi_manager_style_css_start[]  asm("_binary_wifi_manager_style_css_start");
@@ -232,7 +242,9 @@ static esp_err_t json_response(httpd_req_t *req, const cJSON *root)
 {
     char *str = cJSON_PrintUnformatted(root);
     if (!str) {
+        // http 响应类型，相当于 http 头
         httpd_resp_set_type(req, "application/json; charset=utf-8");
+        // 响应空数据，buf_len=2 是为了发送 "{}"
         return httpd_resp_send(req, "{}", 2);
     }
     httpd_resp_set_type(req, "application/json; charset=utf-8");
@@ -262,18 +274,21 @@ static esp_err_t serve_file(httpd_req_t *req,
     return httpd_resp_send(req, (const char *)start, end - start);
 }
 
+// 响应客户端浏览器 html 文件请求，返回嵌入的 index.html
 static esp_err_t index_get_handler(httpd_req_t *req)
 {
     return serve_file(req, "text/html; charset=utf-8",
                       www_wifi_manager_index_html_start, www_wifi_manager_index_html_end);
 }
 
+// 响应客户端浏览器 css 文件请求，返回嵌入的 style.css
 static esp_err_t style_get_handler(httpd_req_t *req)
 {
     return serve_file(req, "text/css; charset=utf-8",
                       www_wifi_manager_style_css_start, www_wifi_manager_style_css_end);
 }
 
+// 响应客户端浏览器 js 文件请求，返回嵌入的 app.js
 static esp_err_t script_get_handler(httpd_req_t *req)
 {
     return serve_file(req, "application/javascript; charset=utf-8",
@@ -283,7 +298,7 @@ static esp_err_t script_get_handler(httpd_req_t *req)
 /** GET /api/wifi-scan — 扫描附近 AP，返回 JSON 列表 */
 static esp_err_t scan_get_handler(httpd_req_t *req)
 {
-    ESP_LOGI(WIFI_MANAGER_TAG, "开始 WiFi 扫描...");
+    ESP_LOGI(WIFI_MANAGER_TAG, "start WiFi scan...");
 
     // 扫描配置：全信道主动扫描
     wifi_scan_config_t scan_cfg = {
@@ -298,7 +313,7 @@ static esp_err_t scan_get_handler(httpd_req_t *req)
 
     esp_err_t ret = esp_wifi_scan_start(&scan_cfg, true);
     if (ret != ESP_OK) {
-        ESP_LOGE(WIFI_MANAGER_TAG, "WiFi 扫描启动失败: %s", esp_err_to_name(ret));
+        ESP_LOGE(WIFI_MANAGER_TAG, "WiFi scan FAILED: %s", esp_err_to_name(ret));
         json_string_response(req, "[]");
         return ESP_OK;
     }
@@ -308,7 +323,7 @@ static esp_err_t scan_get_handler(httpd_req_t *req)
     ESP_ERROR_CHECK(esp_wifi_scan_get_ap_records(&count, records));
     esp_wifi_clear_ap_list();
 
-    ESP_LOGI(WIFI_MANAGER_TAG, "扫描到 %d 个 AP", count);
+    ESP_LOGI(WIFI_MANAGER_TAG, "scan found %d APs", count);
 
     cJSON *root = cJSON_CreateArray();
     if (!root) {
@@ -420,7 +435,7 @@ static esp_err_t config_post_handler(httpd_req_t *req)
     }
     cJSON_Delete(root);
 
-    ESP_LOGI(WIFI_MANAGER_TAG, "收到新配置: SSID=%s", ssid);
+    ESP_LOGI(WIFI_MANAGER_TAG, "receive new config: SSID=%s", ssid);
 
     // 保存到 NVS
     wifi_config_t cfg = {
@@ -436,12 +451,12 @@ static esp_err_t config_post_handler(httpd_req_t *req)
 
     esp_err_t ret = esp_wifi_set_config(WIFI_IF_STA, &cfg);
     if (ret != ESP_OK) {
-        ESP_LOGE(WIFI_MANAGER_TAG, "设置 WiFi 配置失败: %s", esp_err_to_name(ret));
+        ESP_LOGE(WIFI_MANAGER_TAG, "set WiFi config FAILED: %s", esp_err_to_name(ret));
         cJSON *err_resp = cJSON_CreateObject();
         if (err_resp) {
             cJSON_AddStringToObject(err_resp, "status", "error");
             char msg[128];
-            snprintf(msg, sizeof(msg), "保存失败: %s", esp_err_to_name(ret));
+            snprintf(msg, sizeof(msg), "save FAILED: %s", esp_err_to_name(ret));
             cJSON_AddStringToObject(err_resp, "message", msg);
             esp_err_t ret2 = json_response(req, err_resp);
             cJSON_Delete(err_resp);
@@ -454,11 +469,11 @@ static esp_err_t config_post_handler(httpd_req_t *req)
     // 尝试连接
     ret = esp_wifi_connect();
     if (ret != ESP_OK) {
-        ESP_LOGW(WIFI_MANAGER_TAG, "连接 WiFi 失败: %s", esp_err_to_name(ret));
+        ESP_LOGW(WIFI_MANAGER_TAG, "connect WiFi FAILED: %s", esp_err_to_name(ret));
     }
 
     g_has_new_config = true;
-    ESP_LOGI(WIFI_MANAGER_TAG, "WiFi 配置已保存，SSID=%s", ssid);
+    ESP_LOGI(WIFI_MANAGER_TAG, "WiFi config saved, SSID=%s", ssid);
 
     return json_string_response(req,
         "{\"status\":\"ok\",\"message\":\"配置已保存\"}");
@@ -469,10 +484,11 @@ static esp_err_t config_post_handler(httpd_req_t *req)
 // ====================================================================
 
 static const httpd_uri_t uris[] = {
-    { .uri = "/",              .method = HTTP_GET,  .handler = index_get_handler },
-    { .uri = "/wifi_manager_style.css",     .method = HTTP_GET,  .handler = style_get_handler },
-    { .uri = "/wifi_manager_app.js.js",        .method = HTTP_GET,  .handler = script_get_handler },
-    { .uri = "/api/wifi-scan",   .method = HTTP_GET, .handler = scan_get_handler },
+    // 第一个就是 html
+    { .uri = "/", .method = HTTP_GET, .handler = index_get_handler },
+    { .uri = "/wifi_manager_style.css", .method = HTTP_GET, .handler = style_get_handler },
+    { .uri = "/wifi_manager_app.js", .method = HTTP_GET, .handler = script_get_handler },
+    { .uri = "/api/wifi-scan", .method = HTTP_GET, .handler = scan_get_handler },
     { .uri = "/api/wifi-status", .method = HTTP_GET, .handler = status_get_handler },
     { .uri = "/api/wifi-config", .method = HTTP_POST, .handler = config_post_handler },
 };
@@ -485,27 +501,28 @@ static const int uri_count = sizeof(uris) / sizeof(uris[0]);
 esp_err_t wifi_config_server_start(httpd_handle_t *handle)
 {
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    config.max_uri_handlers = uri_count + 2;
-    config.lru_purge_enable = true;
+    config.max_uri_handlers = uri_count + 2; // 为一些插件隐式注册的 URI 留出空间
+    config.lru_purge_enable = true; // 超最大 TCP 连接数目时候，自动关闭最久未使用的连接
     config.stack_size = 4096;
 
     esp_err_t ret = httpd_start(handle, &config);
     if (ret != ESP_OK) {
-        ESP_LOGE(WIFI_MANAGER_TAG, "启动 HTTP 服务器失败: %s", esp_err_to_name(ret));
+        ESP_LOGE(WIFI_MANAGER_TAG, "start HTTP server FAILED: %s", esp_err_to_name(ret));
         return ret;
     }
 
     for (int i = 0; i < uri_count; i++) {
+        // 注册 uri 资源，当 HTTP 请求匹配到对应 URI 和 method 时，调用 handler 处理
         ret = httpd_register_uri_handler(*handle, &uris[i]);
         if (ret != ESP_OK) {
-            ESP_LOGE(WIFI_MANAGER_TAG, "注册 URI %s 失败: %s",
+            ESP_LOGE(WIFI_MANAGER_TAG, "register URI %s FAILED: %s",
                      uris[i].uri, esp_err_to_name(ret));
             httpd_stop(*handle);
             return ret;
         }
     }
 
-    ESP_LOGI(WIFI_MANAGER_TAG, "WiFi 配置服务器已启动 (http://%s / http://%s)",
+    ESP_LOGI(WIFI_MANAGER_TAG, "WiFi config server started (http://%s / http://%s)",
              AP_GATEWAY_IP, CONFIG_WIFI_AP_DOMAIN);
     dns_server_start();
     return ESP_OK;
@@ -516,7 +533,7 @@ esp_err_t wifi_config_server_stop(httpd_handle_t handle)
     dns_server_stop();
     if (handle) {
         httpd_stop(handle);
-        ESP_LOGI(WIFI_MANAGER_TAG, "WiFi 配置服务器已停止");
+        ESP_LOGI(WIFI_MANAGER_TAG, "WiFi config server stopped");
     }
     return ESP_OK;
 }
