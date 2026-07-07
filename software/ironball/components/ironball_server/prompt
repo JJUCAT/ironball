@@ -1,53 +1,45 @@
+简介：
+ironball_server 是基于 esp-idf v6.0.1 实现的网页监控组件
+具备人脸识别，录入管理，实时监控，遥控云台，播放指定语音等功能
+
 依赖：
 esp_http_server 创建服务器 ironball_server
 cJSON 编辑解析 json 数据
-
+mdns 广播域名
 
 文件结构：
-ironball_server_task.c 
-  负责创建 ironball_server 服务器任务
+src/ironball_server_task.c:
+  创建 freertos 任务
+  连接进局域网开启 mdns 广播域名 SERVER_NAME
+  创建 ironball_server 服务任务，绑定端口 SERVER_PORT
 
 ----------
-ironball_server.c
-  负责创建服务器
+src/ironball_server.c
+  负责创建 HTTP，接收服务请求响应
+  升级 websocket 服务
 
 ----------
-monitor.c
+src/monitor.c
   服务器业务视频监控
-  // 前端 api 接口
-  // 开启 websocket
-  static esp_err_t start_websocket_handler(httpd_req_t *req)
-  // 通过 websocket 上报图像
-  static esp_err_t get_frame_handler(httpd_req_t *req)
+
 
 ----------
-reminder.c
-  服务器业务事件管理
-  // 前端 api 接口
-  // 获取所有事件，加日志，暂时无实际控制逻辑
-  static esp_err_t get_reminder_list_handler(httpd_req_t *req)
-  // 添加事件，加日志，暂时无实际控制逻辑
-  static esp_err_t add_handler(httpd_req_t *req)
-  // 删除事件，加日志，暂时无实际控制逻辑
-  static esp_err_t delete_handler(httpd_req_t *req)
-
-----------
-remote_control.c
+src/remote_control.c
   服务器业务遥控相机
-  // 前端 api 接口
-  // 相机左转，加日志，暂时无实际控制逻辑
-  static esp_err_t left_turn_handler(httpd_req_t *req)
-  // 相机右转，加日志，暂时无实际控制逻辑
-  static esp_err_t right_turn_handler(httpd_req_t *req)
 
 ----------
-app.js
+www/app.js:
   服务器前端业务
+  如果客户端支持 websocket，那么向服务器发起 websocket 协议升级
+  websocket 升级成功，请求获取图像并显示
+  左右按钮被按下，10 Hz 发送左转，或右转请求
 
 ----------
-index.html
+www/index.html:
   服务器前端布局
+  图形显示框
+  左转按钮，右转按钮
 
 ----------
-style.css
+www/style.css:
   服务器前端样式

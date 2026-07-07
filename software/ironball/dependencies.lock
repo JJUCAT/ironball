@@ -67,6 +67,16 @@ dependencies:
       registry_url: https://components.espressif.com/
       type: service
     version: 1.7.0
+  espressif/mdns:
+    component_hash: e81ca7a7f53ea34e78274df054da692c272e1315572876b237b1748e267c013b
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=5.0'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 1.11.3
   idf:
     source:
       type: idf
@@ -76,6 +86,7 @@ direct_dependencies:
 - espressif/console_cmd_wifi
 - espressif/esp32-camera
 - espressif/esp_websocket_client
-manifest_hash: d2e2f8e1bba348f57e08fef974696dbd339050b196f4f91ecdf04e8fdf97f2f3
+- espressif/mdns
+manifest_hash: 09afdd720af956f45b2a31b1c0f08a827c89621bbf810a2f1535f092656d1656
 target: esp32s3
 version: 3.0.0

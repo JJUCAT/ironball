@@ -1,0 +1,12 @@
+menu "Jucat WiFi Manager"
+
+    config SERVER_NAME
+        string "server domain name"
+        default "http://ironball.local"
+
+    config SERVER_PORT
+        int "server port"
+        range 1024 49151
+        default 2887
+
+endmenu
